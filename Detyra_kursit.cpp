@@ -65,7 +65,7 @@ int main(){
     }
     for(int i = 0; i < 2000; i++){ // alokojme memorien per secilin pointer te leje-daljes
     size_leje[i] = 1;
-    a[i] = (Leje*) malloc(sizeof(Leje));
+    a[i] = (Leje*) malloc( size_leje[i] * sizeof(Leje));
 }
 /*    for(int i = 0; i < counter; i++){
         printf("%s %s %s %d %d\n", (shtetasptr+i)->idnr, (shtetasptr+i)->emer, (shtetasptr+i)->mbiemer, (shtetasptr+i)->ditelindja, (shtetasptr+i)->id_familja);
@@ -237,8 +237,8 @@ void leje_dalje(){
             strcpy(qytetar.mbiemer, (shtetasptr+i)->mbiemer);
             qytetar.ditelindja = (shtetasptr+i)->ditelindja;
             qytetar.id_familja = (shtetasptr+i)->id_familja;
+            break;
         }
-        break;
     }
     if(i == counter){// pra nuk u gjet nje shtetas me ate ID
         printf("Ky shtetas nuk ndodhet ne sistem!");
@@ -302,7 +302,6 @@ int mosha_lejuar(Shtetas q, Data d){
         }
     }
 }
-
 int aprovimi_lejes(Shtetas qytetar, Data d, float ora){
     int i;
     for(i = 0; i < size_leje[qytetar.id_familja]; i++){
@@ -311,11 +310,11 @@ int aprovimi_lejes(Shtetas qytetar, Data d, float ora){
         }
     }
     if(i == size_leje[qytetar.id_familja]){// tregon qe nuk u gjet asnje pjestar i familjes me leje ne ate date
-        a[i-1]->dita = d.dita;
-        a[i-1]->muaji = d.muaji;
-        a[i-1]->viti = d.viti;
-        a[i-1]->ora = ora;
-        strcpy(a[i-1]->id, qytetar.idnr);
+        (a[qytetar.id_familja]+i-1)->dita = d.dita;
+        (a[qytetar.id_familja]+i-1)->muaji = d.muaji;
+        (a[qytetar.id_familja]+i-1)->viti = d.viti;
+        (a[qytetar.id_familja]+i-1)->ora = ora;
+        strcpy( (a[qytetar.id_familja]+i-1)->id, qytetar.idnr);
         size_leje[qytetar.id_familja]++;
         a[qytetar.id_familja] = (Leje*)realloc(a[qytetar.id_familja], size_leje[qytetar.id_familja]*sizeof(Leje));
         printf("Leja u pranua!");
@@ -332,7 +331,7 @@ void hedhja_file(Shtetas qytetar, Data d, float ora){
         printf("Gabim ne hapjen e file-it");
         return;
     }
-    fprintf(fptr2, "%s %d %d %d %.2f\n", qytetar.idnr, d.dita, d.muaji, d.viti, ora);
+    fprintf(fptr2, "%s %d %d %d %d %.2f\n", qytetar.idnr, qytetar.id_familja, d.dita, d.muaji, d.viti, ora);
     fclose(fptr2);
     return;
 }
