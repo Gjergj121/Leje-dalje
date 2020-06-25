@@ -40,15 +40,18 @@ void ndrysho_shtetas(Shtetas qytetar);
 void marr_lejedalje();
 int mosha_lejuar(Shtetas q, Data d);
 int aprovimi_lejes(Shtetas qytetar, Data d, float ora);
-void shkruajme_file(Shtetas qytetar, Data d, float ora);
+void ruaj_lejedaljet_file(Shtetas qytetar, Data d, float ora);
 void kontrollo_lejedalje();
 void kontrollo_ne_file(char shtetas_id[], Data shtetas_data, float shtetas_ora);
-void ruaj_ne_file();
+void ruaj_ndryshimet();
 void printimi_lejedaljeve();
 int menu_printimi_lejedaljeve();
 void printo_shtetas();
 void printo_familje();
 void printo_tegjithe();
+void printo_shtetas_sipas_lejedaljeve();
+void printo_dhjete_me_shpesh(int banues[]);
+void printo_dhjete_me_pak(int banues[]);
 
 int main(){
     if( (fptr=fopen("prov1.txt", "r+")) == NULL ){
@@ -57,7 +60,7 @@ int main(){
     }
     shtetasptr = (Shtetas*) malloc(size*sizeof(Shtetas)); // alokoj memorjen
 
-    /*hedhim elementet e file ne pointerin dataptr */
+    /*hedhim elementet e file ne pointerin shtetasptr */
     fseek(fptr, 37, SEEK_SET);// anashkalojme rreshtin e pare te file
     while(!feof(fptr)){ // derisa te arrijme ne fund te file-it
         fscanf(fptr, "%s", (shtetasptr+counter)->idnr );
@@ -107,7 +110,7 @@ void perzgjedhja(){
     while(1){
         switch(zgjedhja){
             case 0:// ruaj te dhenat ne file
-               ruaj_ne_file();
+               ruaj_ndryshimet();
                 return;
             case 1:
                 shto_shtetas();
@@ -133,6 +136,7 @@ void perzgjedhja(){
                 printimi_lejedaljeve();
                 break;
             case 6:
+                printo_shtetas_sipas_lejedaljeve();
                 break;
             default:
                 printf("Zgjedhje e gabuar!\n");
@@ -271,7 +275,7 @@ void marr_lejedalje(){
         printf("Eshte dhene nje leje per familjen tuaj ne kete dite!");
         return;
     }
-    shkruajme_file(qytetar, d, ora);
+    ruaj_lejedaljet_file(qytetar, d, ora);
     return;
 }
 
@@ -329,7 +333,7 @@ int aprovimi_lejes(Shtetas qytetar, Data d, float ora){
         return 1;
 }
 
-void shkruajme_file(Shtetas qytetar, Data d, float ora){
+void ruaj_lejedaljet_file(Shtetas qytetar, Data d, float ora){
     if( (fptr2 = fopen("LejeDaljet.txt", "a")) == NULL){
         printf("Gabim ne hapjen e file-it");
         return;
@@ -372,7 +376,7 @@ void kontrollo_ne_file(char shtetas_id[], Data shtetas_data, float shtetas_ora){
     fclose(fptr2);
 }
 
-void ruaj_ne_file(){
+void ruaj_ndryshimet(){
     fseek(fptr, 37, SEEK_SET);// anashkaloj rreshtin e pare
     for(int i = 0; i < counter; i++){
         fprintf(fptr, "\n%s %s %s %d %d", (shtetasptr+i)->idnr, (shtetasptr+i)->emer, (shtetasptr+i)->mbiemer, (shtetasptr+i)->ditelindja, (shtetasptr+i)->id_familja);
@@ -420,7 +424,7 @@ void printo_shtetas(){
     Leje qytetar;
     int id_familja;
     while(!feof(fptr2)){
-        fscanf(fptr2, "%s %d %d %d %d %f", qytetar.id, &id_familja, &qytetar.data_lejes.dita, &qytetar.data_lejes.muaji, &qytetar.data_lejes.viti, &qytetar.ora);
+        fscanf(fptr2, "%s %d %d %d %d %f\n", qytetar.id, &id_familja, &qytetar.data_lejes.dita, &qytetar.data_lejes.muaji, &qytetar.data_lejes.viti, &qytetar.ora);
         if( strcmp(id, qytetar.id) == 0){
             printf("Data : %d %d %d\n", qytetar.data_lejes.dita, qytetar.data_lejes.muaji, qytetar.data_lejes.viti);
             printf("Ora : %.2f\n", qytetar.ora);
@@ -440,7 +444,7 @@ void printo_familje(){
         return;
     }
     while(!feof(fptr2)){
-        fscanf(fptr2, "%s %d %d %d %d %f", qytetar.id, &idf, &qytetar.data_lejes.dita, &qytetar.data_lejes.muaji, &qytetar.data_lejes.viti, &qytetar.ora);
+        fscanf(fptr2, "%s %d %d %d %d %f\n", qytetar.id, &idf, &qytetar.data_lejes.dita, &qytetar.data_lejes.muaji, &qytetar.data_lejes.viti, &qytetar.ora);
         if( id_familja == idf){
             printf("Data : %d %d %d\n", qytetar.data_lejes.dita, qytetar.data_lejes.muaji, qytetar.data_lejes.viti);
             printf("Ora : %.2f\n", qytetar.ora);
@@ -457,8 +461,104 @@ void printo_tegjithe(){
     Leje qytetar;
     int id_familja;
     while(!feof(fptr2)){
-        fscanf(fptr2, "%s %d %d %d %d %f", qytetar.id, &id_familja, &qytetar.data_lejes.dita, &qytetar.data_lejes.muaji, &qytetar.data_lejes.viti, &qytetar.ora);
+        fscanf(fptr2, "%s %d %d %d %d %f\n", qytetar.id, &id_familja, &qytetar.data_lejes.dita, &qytetar.data_lejes.muaji, &qytetar.data_lejes.viti, &qytetar.ora);
         printf("ID : %s, ID e familjes : %d, Data : %d %d %d, Ora : %.2f\n", qytetar.id, id_familja, qytetar.data_lejes.dita, qytetar.data_lejes.muaji, qytetar.data_lejes.viti, qytetar.ora);
     }
     fclose(fptr2);
+}
+
+void printo_shtetas_sipas_lejedaljeve(){
+    char qytetar_id[2000][15];
+    int id_familja;
+    Data d;
+    float ora;
+    int counter_lejedalje = 0;
+    int i, j;
+    if( (fptr2=fopen("LejeDaljet.txt", "r") ) == NULL ){
+        printf("Gabim ne hapjen e file-t");
+    }
+    while(!feof(fptr2)){
+        fscanf(fptr2, "%s %d %d %d %d %f\n", qytetar_id[counter_lejedalje], &id_familja, &d.dita, &d.muaji, &d.viti, &ora);
+        counter_lejedalje++;
+    }
+    int banues[counter]={0};//mban numrin e hereve qe ka dale secili banor
+
+    for(i= 0; i< counter; i++){
+        for(j= 0; j< counter_lejedalje; j++){
+            if(strcmp((shtetasptr+i)->idnr, qytetar_id[j]) == 0){
+                banues[i]++;
+            }
+        }
+    }
+    printo_dhjete_me_shpesh(banues);
+    printo_dhjete_me_pak(banues);
+}
+
+void printo_dhjete_me_shpesh(int banues[]){
+    int b[counter];
+    int index_banor[counter];
+    int i,j;
+    for(i = 0; i < counter; i++){
+        b[i]= banues[i];
+        index_banor[i]= i;
+    }
+    /* Bubble sort ne rend zbrites */
+    int temp;
+    for(i = 0; i < counter-1; i++){
+        for(j = 0; j < counter-1; j++){
+            if(b[j] < b[j+1]){
+                temp = b[j];
+                b[j] = b[j+1];
+                b[j+1] = temp;
+
+                temp = index_banor[j];
+                index_banor[j] = index_banor[j+1];
+                index_banor[j+1] = temp;
+            }
+        }
+    }
+    printf("\n2 shtetasit qe kane levizur me shpesh :\n");
+    for(i = 0; i < 2; i++){
+        if(banues[index_banor[i]] == 0){
+            break;
+        }
+        printf("%d. %s %s (%d here)\n", i+1, (shtetasptr+index_banor[i])->emer, (shtetasptr+index_banor[i])->mbiemer, banues[index_banor[i]]);
+    }
+}
+
+void printo_dhjete_me_pak(int banues[]){
+    int b[counter];
+    int index_banor[counter];
+    int i,j;
+    for(i = 0; i < counter; i++){
+        b[i]= banues[i];
+        index_banor[i]= i;
+    }
+    /* Bubble sort ne rend rrites */
+    int temp;
+    for(i = 0; i < counter-1; i++){
+        for(j = 0; j < counter-1; j++){
+            if(b[j] > b[j+1]){
+                temp = b[j];
+                b[j] = b[j+1];
+                b[j+1] = temp;
+
+                temp = index_banor[j];
+                index_banor[j] = index_banor[j+1];
+                index_banor[j+1] = temp;
+            }
+        }
+    }
+    for(i = 0; i < counter; i++){
+        if(banues[index_banor[i]] != 0){// anashkalojme te gjithe banoret qe nuk kane dale asnjehere
+            printf("\n2 shtetasit qe kane levizur me pak :\n");
+            for(j = 0; j < 2; j++){
+                printf("%d. %s %s (%d here)\n", j+1, (shtetasptr+index_banor[i+j])->emer, (shtetasptr+index_banor[i+j])->mbiemer, banues[index_banor[i+j]]);
+                if(i+j+1 == counter){
+                    break;
+                }
+            }
+            break;
+        }
+    }
 }
