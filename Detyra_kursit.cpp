@@ -6,7 +6,7 @@ struct shtetas{
     char idnr[15];
     char emer[30];
     char mbiemer[30];
-    int ditelindja;
+    int ditelindja; 
     int id_familja;
 }*shtetasptr;
 typedef struct shtetas Shtetas;
@@ -24,18 +24,19 @@ struct orari{
 };
 typedef struct orari Orari;
 
+const int size_persona_leje = 10000;
 struct leje{
     Orari time;
     Data data_lejes;
     char id[15];
-}*a[2000];
+}*persona_leje[size_persona_leje];
 typedef struct leje Leje;
-int size_leje[2000];// size i cdo pointeri
+int size_leje[size_persona_leje];// size i cdo pointeri
 
-FILE *fptr; // krijojme nje pointer qe pointon ne nje file
+FILE *fptr; // krijojme nje pointer qe pointon ne file-in ku ruhen te dhenat e shtetasve
 FILE *fptr2; // krijoj pointerin per file-in e ri qe do te mbaje leje-daljet
 
-int counter = 0, size = 3; // variabla global
+int counter = 0, size = 5000; // variabla global
 /* prototipet e funksioneve */
 int menu();
 void perzgjedhja();
@@ -60,13 +61,13 @@ void printo_dhjete_me_shpesh(int banues[]);
 void printo_dhjete_me_pak(int banues[]);
 
 int main(){
-    if( (fptr=fopen("prov1.txt", "r+")) == NULL ){
+    if( (fptr=fopen("detyra_data.txt", "r+")) == NULL ){
         printf("Gabim ne hapjen e file-it");
         return 0;
     }
     shtetasptr = (Shtetas*) malloc(size*sizeof(Shtetas)); // alokoj memorjen
 
-    /*hedhim elementet e file ne pointerin shtetasptr */
+    /*hedhim elementet e file-it ne pointerin shtetasptr */
     fseek(fptr, 37, SEEK_SET);// anashkalojme rreshtin e pare te file
     while(!feof(fptr)){ // derisa te arrijme ne fund te file-it
         fscanf(fptr, "%s", (shtetasptr+counter)->idnr );
@@ -80,15 +81,11 @@ int main(){
             shtetasptr = (Shtetas*) realloc(shtetasptr, size*sizeof(Shtetas));
         }
     }
-    for(int i = 0; i < 2000; i++){ // alokojme memorien per secilin pointer te leje-daljes
+    for(int i = 0; i < size_persona_leje; i++){ // alokojme memorien per secilin pointer te leje-daljes
         size_leje[i] = 1;
-        a[i] = (Leje*) malloc(sizeof(Leje));
+        persona_leje[i] = (Leje*) malloc(sizeof(Leje));
     }
-/*    for(int i = 0; i < counter; i++){
-        printf("%s %s %s %d %d\n", (shtetasptr+i)->idnr, (shtetasptr+i)->emer, (shtetasptr+i)->mbiemer, (shtetasptr+i)->ditelindja, (shtetasptr+i)->id_familja);
-    }
-    printf("\nKemi %d qytetare ", counter);
-*/
+
     perzgjedhja();
     return 0;
 }
@@ -115,22 +112,14 @@ void perzgjedhja(){
 
     while(1){
         switch(zgjedhja){
-            case 0:// ruaj te dhenat ne file
+            case 0:// mbyll programin dhe ruaj te dhenat ne file
                ruaj_ndryshimet();
                 return;
             case 1:
                 shto_shtetas();
-                 for(int i = 0; i < counter; i++){
-        printf("%s %s %s %d %d\n", (shtetasptr+i)->idnr, (shtetasptr+i)->emer, (shtetasptr+i)->mbiemer, (shtetasptr+i)->ditelindja, (shtetasptr+i)->id_familja);
-        }
-         printf("\nKemi %d qytetare ", counter);
                 break;
             case 2:
                 ndrysho_shtetas();
-                 for(int i = 0; i < counter; i++){
-        printf("%s %s %s %d %d\n", (shtetasptr+i)->idnr, (shtetasptr+i)->emer, (shtetasptr+i)->mbiemer, (shtetasptr+i)->ditelindja, (shtetasptr+i)->id_familja);
-        }
-        printf("\nKemi %d qytetare ", counter);
                 break;
             case 3:
                 marr_lejedalje();
@@ -237,7 +226,7 @@ void ndrysho_shtetas(Shtetas qytetar){
             return;
         }
     } 
-    printf("Ky shtetas nuk ndodhet ne sistem\n");
+    printf("Ky shtetas nuk ndodhet ne sistem!\n");
     return;
 }
 
@@ -245,7 +234,7 @@ void ndrysho_shtetas(Shtetas qytetar){
 void marr_lejedalje(){
     Shtetas qytetar;
     Data d;
-    printf("Vendosni ID e personit qe deshiron leje-dalje : ");
+    printf("Vendosni ID e personit qe deshiron leje-dalje: ");
     scanf("%s", qytetar.idnr);
     int i;
     Orari o;
@@ -263,13 +252,13 @@ void marr_lejedalje(){
         printf("Ky shtetas nuk ndodhet ne sistem!");
         return;
     }
-    printf("Vendosni daten (diten muajin vitin) e daljes : ");
+    printf("Vendosni daten (diten muajin vitin) e daljes: ");
     scanf("%d %d %d",&d.dita, &d.muaji, &d.viti);
     if( (d.dita<1 || d.dita>31) || (d.muaji<1 || d.muaji>12) || (d.viti!=2020) ){
         printf("Date e papranueshme!");
         return;
     }
-    printf("Vendosni oren (8 00-15 00) : "); 
+    printf("Vendosni oren (8 00-15 00): "); 
     scanf("%d %d", &o.ora, &o.minutat);
     if( (o.ora < 8 || o.ora > 15) || (o.minutat < 0 || o.minutat >= 60) ){
         printf("Orar i papranueshem!");
@@ -327,19 +316,19 @@ int mosha_lejuar(Shtetas q, Data d){
 int aprovimi_lejes(Shtetas qytetar, Data d, Orari o){
     int i;
     for(i = 0; i < size_leje[qytetar.id_familja]; i++){
-        if(d.viti == (a[qytetar.id_familja]+i)->data_lejes.viti && d.muaji  == (a[qytetar.id_familja]+i)->data_lejes.muaji && d.dita == (a[qytetar.id_familja]+i)->data_lejes.dita ){
+        if(d.viti == (persona_leje[qytetar.id_familja]+i)->data_lejes.viti && d.muaji  == (persona_leje[qytetar.id_familja]+i)->data_lejes.muaji && d.dita == (persona_leje[qytetar.id_familja]+i)->data_lejes.dita ){
             return 0;
         }
     }
     // Nuk u gjet asnje pjestar i familjes me leje ne ate date
-        (a[qytetar.id_familja]+i-1)->data_lejes.dita = d.dita;
-        (a[qytetar.id_familja]+i-1)->data_lejes.muaji = d.muaji;
-        (a[qytetar.id_familja]+i-1)->data_lejes.viti = d.viti;
-        (a[qytetar.id_familja]+i-1)->time.ora = o.ora;
-        (a[qytetar.id_familja]+i-1)->time.minutat = o.minutat;
-        strcpy( (a[qytetar.id_familja]+i-1)->id, qytetar.idnr);
+        (persona_leje[qytetar.id_familja]+i-1)->data_lejes.dita = d.dita;
+        (persona_leje[qytetar.id_familja]+i-1)->data_lejes.muaji = d.muaji;
+        (persona_leje[qytetar.id_familja]+i-1)->data_lejes.viti = d.viti;
+        (persona_leje[qytetar.id_familja]+i-1)->time.ora = o.ora;
+        (persona_leje[qytetar.id_familja]+i-1)->time.minutat = o.minutat;
+        strcpy( (persona_leje[qytetar.id_familja]+i-1)->id, qytetar.idnr);
         size_leje[qytetar.id_familja]++;
-        a[qytetar.id_familja] = (Leje*)realloc(a[qytetar.id_familja], size_leje[qytetar.id_familja]*sizeof(Leje));
+        persona_leje[qytetar.id_familja] = (Leje*) realloc(persona_leje[qytetar.id_familja], size_leje[qytetar.id_familja]*sizeof(Leje));
         printf("Leja u pranua!");
         return 1;
 }
@@ -358,9 +347,9 @@ void kontrollo_lejedalje(){
     Data shtetas_data;
     char shtetas_id[15];
     Orari shtetas_ora;
-    printf("Vendosni ID e shtetasit : ");
+    printf("Vendosni ID e shtetasit: ");
     scanf("%s", shtetas_id);
-    printf("Vendosni daten (dita muaji viti) : ");
+    printf("Vendosni daten (dita muaji viti): ");
     scanf("%d %d %d", &shtetas_data.dita, &shtetas_data.muaji, &shtetas_data.viti);
     printf("Vendosni oren (ora minutat): ");
     scanf("%d %d", &shtetas_ora.ora, &shtetas_ora.minutat);
@@ -372,10 +361,12 @@ void kontrollo_ne_file(char shtetas_id[], Data shtetas_data, Orari shtetas_ora){
         printf("Gabim ne hapjen e file-it");
         return;
     }
+
     char id[15];
     Data d;
     Orari o;
     int id_familja;
+
     while(!feof(fptr2)){
         fscanf(fptr2, "%s %d %d %d %d %d %d", id, &id_familja, &d.dita, &d.muaji, &d.viti, &o.ora, &o.minutat);
         if( strcmp(shtetas_id, id) == 0 && shtetas_data.dita == d.dita && shtetas_data.muaji == d.muaji && shtetas_data.viti == d.viti && shtetas_ora.ora == o.ora && shtetas_ora.minutat == o.minutat){
@@ -383,6 +374,7 @@ void kontrollo_ne_file(char shtetas_id[], Data shtetas_data, Orari shtetas_ora){
             return;
         }
     }
+
     printf("Shtetasi nuk ka leje!");
     fclose(fptr2);
 }
@@ -397,27 +389,27 @@ void ruaj_ndryshimet(){
 
 int menu_printimi_lejedaljeve(){
     int zgjedhja;
-    printf("Zgjidhni nje nga opsionet e meposhtme :\n");
+    printf("Zgjidhni nje nga opsionet e meposhtme:\n");
     printf("1 - Printo leje daljet per nje shtetas\n");
     printf("2 - Printo leje daljet per nje familje\n");
     printf("3 - Printo te gjitha leje daljet\n");
-    printf("Zgjedhja juaj : ");
+    printf("Zgjedhja juaj: ");
     scanf("%d", &zgjedhja);
     return zgjedhja;
 }
 
 void printimi_lejedaljeve(){
     switch( menu_printimi_lejedaljeve() ){
-        case 1 :
+        case 1:
             printo_shtetas();
             break;
-        case 2 :
+        case 2:
             printo_familje();
             break;
-        case 3 :
+        case 3:
             printo_tegjithe();
             break;
-        default :
+        default:
             printf("Keni shtypur nje numer te gabuar!");
             break;
     }
@@ -425,7 +417,7 @@ void printimi_lejedaljeve(){
 
 void printo_shtetas(){
     char id[15];
-    printf("Vendosni ID e shtetasit : ");
+    printf("Vendosni ID e shtetasit: ");
     scanf("%s", id);
 
     if ( (fptr2=fopen("LejeDaljet.txt", "r") ) == NULL){
@@ -434,7 +426,7 @@ void printo_shtetas(){
     }
     Leje qytetar;
     int id_familja;
-    while(!feof(fptr2)){
+    while( !feof(fptr2) ){
         fscanf(fptr2, "%s %d %d %d %d %d %d\n", qytetar.id, &id_familja, &qytetar.data_lejes.dita, &qytetar.data_lejes.muaji, &qytetar.data_lejes.viti, &qytetar.time.ora, &qytetar.time.minutat);
         if( strcmp(id, qytetar.id) == 0){
             printf("Data : %d %d %d\n", qytetar.data_lejes.dita, qytetar.data_lejes.muaji, qytetar.data_lejes.viti);
@@ -479,7 +471,7 @@ void printo_tegjithe(){
 }
 
 void printo_shtetas_sipas_lejedaljeve(){
-    char qytetar_id[2000][15];
+    char qytetar_id[size_persona_leje][15];
     int id_familja;
     Data d;
     Orari o;
