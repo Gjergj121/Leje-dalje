@@ -106,24 +106,27 @@ void lexo_lejedalje() {
     int id_familja;
     char idnr[15];
     
-
     if( (fptr2 = fopen("LejeDaljet.txt", "r+")) == NULL){
-        printf("Gabim ne hapjen e file-it");
+        printf("File nuk ekziston");
         return;
     }
 
     while(!feof(fptr2)){
-        fscanf(fptr2, "%s %d %d %d %d %d %d\n", idnr, &id_familja, &d.dita, &d.muaji, &d.viti, &o.ora, &o.minutat);
+        
+        int check = fscanf(fptr2, "%s %d %d %d %d %d %d", idnr, &id_familja, &d.dita, &d.muaji, &d.viti, &o.ora, &o.minutat);
 
-        persona_leje[id_familja]->data_lejes.dita = d.dita;
-        persona_leje[id_familja]->data_lejes.muaji = d.muaji;
-        persona_leje[id_familja]->data_lejes.viti = d.viti;
-        persona_leje[id_familja]->time.ora = o.ora;
-        persona_leje[id_familja]->time.minutat = o.minutat;
-        strcpy(persona_leje[id_familja]->id, idnr);
+        if (check == 1){
+            persona_leje[id_familja]->data_lejes.dita = d.dita;
+            persona_leje[id_familja]->data_lejes.muaji = d.muaji;
+            persona_leje[id_familja]->data_lejes.viti = d.viti;
+            persona_leje[id_familja]->time.ora = o.ora;
+            persona_leje[id_familja]->time.minutat = o.minutat;
+            strcpy(persona_leje[id_familja]->id, idnr);
 
-        size_leje[id_familja]++;
-        persona_leje[id_familja] = (Leje*) realloc(persona_leje[id_familja], size_leje[id_familja]*sizeof(Leje));
+            size_leje[id_familja]++;
+            persona_leje[id_familja] = (Leje*) realloc(persona_leje[id_familja], size_leje[id_familja]*sizeof(Leje));
+        }
+        
     }
     
     fclose(fptr2);
@@ -373,22 +376,6 @@ int aprovimi_lejes(Shtetas qytetar, Data d, Orari o){
     return 1;
 }
 
-void ruaj_lejedaljet_file(){
-    if( (fptr2 = fopen("LejeDaljet.txt", "w")) == NULL){
-        printf("Gabim ne hapjen e file-it");
-        return;
-    }
-    
-    for (int j = 0; j < size_persona_leje; j++) {
-        for (int i = 0; i < size_leje[j] - 1; i++) {
-            fprintf(fptr2, "%s %d %d %d %d %d %d\n", (persona_leje[j] + i)->id, j, (persona_leje[j] + i)->data_lejes.dita, (persona_leje[j] + i)->data_lejes.muaji, (persona_leje[j] + i)->data_lejes.viti, (persona_leje[j] + i)->time.ora, (persona_leje[j] + i)->time.minutat);
-        }
-    }
-
-    fclose(fptr2);
-    return;
-}
-
 void kontrollo_lejedalje(){
     Data shtetas_data;
     char shtetas_id[15];
@@ -444,6 +431,22 @@ void ruaj_shtetasit(){
         fprintf(fptr, "\n%s %s %s %d %d", (shtetasptr+i)->idnr, (shtetasptr+i)->emer, (shtetasptr+i)->mbiemer, (shtetasptr+i)->ditelindja, (shtetasptr+i)->id_familja);
     }
     fclose(fptr);
+}
+
+void ruaj_lejedaljet_file(){
+    if( (fptr2 = fopen("LejeDaljet.txt", "w+")) == NULL){
+        printf("Gabim ne hapjen e file-it");
+        return;
+    }
+    
+    for (int j = 0; j < size_persona_leje; j++) {
+        for (int i = 0; i < size_leje[j] - 1; i++) {
+            fprintf(fptr2, "%s %d %d %d %d %d %d\n", (persona_leje[j] + i)->id, j, (persona_leje[j] + i)->data_lejes.dita, (persona_leje[j] + i)->data_lejes.muaji, (persona_leje[j] + i)->data_lejes.viti, (persona_leje[j] + i)->time.ora, (persona_leje[j] + i)->time.minutat);
+        }
+    }
+
+    fclose(fptr2);
+    return;
 }
 
 int menu_printimi_lejedaljeve(){
@@ -522,15 +525,13 @@ void printo_tegjithe(){
 }
 
 void printo_shtetas_sipas_lejedaljeve(){
-    int id_familja;
-    int counter_lejedalje = 0;
 
     int banues[counter] = {0}; //mban numrin e hereve qe ka dale secili banor
 
     for(int j= 0; j< counter; j++){
          for(int i = 0; i < size_leje[(shtetasptr+j)->id_familja] - 1; i++) {
-            if (strcmp((persona_leje[(shtetasptr+j)->id_familja] + i)->id, (shtetasptr+i)->idnr) == 0){
-                banues[i]++;
+            if (strcmp((persona_leje[(shtetasptr+j)->id_familja] + i)->id, (shtetasptr+j)->idnr) == 0){
+                banues[j]++;
             }
         }
          
