@@ -67,21 +67,21 @@ int main(){
     }
     shtetasptr = (Shtetas*) malloc(size*sizeof(Shtetas)); // alokoj memorjen
 
-    /*hedhim elementet e file-it ne pointerin shtetasptr */
-    fseek(fptr, 37, SEEK_SET);// anashkalojme rreshtin e pare te file
-    while(!feof(fptr)){ // derisa te arrijme ne fund te file-it
+    /*Elementet e file-it i ruaj ne pointerin shtetasptr */
+    fseek(fptr, 37, SEEK_SET);// anashkaloj rreshtin e pare te file-it
+    while(!feof(fptr)){ 
         fscanf(fptr, "%s", (shtetasptr+counter)->idnr );
         fscanf(fptr, "%s", (shtetasptr+counter)->emer );
         fscanf(fptr, "%s", (shtetasptr+counter)->mbiemer );
         fscanf(fptr, "%d", &(shtetasptr+counter)->ditelindja );
         fscanf(fptr, "%d", &(shtetasptr+counter)->id_familja );
         counter++;
-        if(counter == size){// nese e kemi zene te gjithe memorjen e alokuar e dyfishojme ate
+        if(counter == size){// nese memorja e alokuar eshte e zene, e dyfishojme
             size *= 2;
             shtetasptr = (Shtetas*) realloc(shtetasptr, size*sizeof(Shtetas));
         }
     }
-    for(int i = 0; i < size_persona_leje; i++){ // alokojme memorien per secilin pointer te leje-daljes
+    for(int i = 0; i < size_persona_leje; i++){ // alokoj memorien per secilin pointer te leje-daljes
         size_leje[i] = 1;
         persona_leje[i] = (Leje*) malloc(sizeof(Leje));
     }
@@ -112,7 +112,7 @@ void perzgjedhja(){
 
     while(1){
         switch(zgjedhja){
-            case 0:// mbyll programin dhe ruaj te dhenat ne file
+            case 0:
                ruaj_ndryshimet();
                 return;
             case 1:
@@ -155,7 +155,7 @@ void shto_shtetas(){
     printf("Vendosni ID e familjes : ");
     scanf("%d", &qytetar.id_familja);
     int i;
-    for(i = 0; i < counter; i++){
+    for(i = 0; i < counter; i++){//kontrolloj nese shtetasi ndodhet ne liste
         if( strcmp(qytetar.idnr,(shtetasptr+i)->idnr) == 0){
             printf("\nKy shtetas ndodhet ne liste\n");
             break;
@@ -212,7 +212,7 @@ void ndrysho_shtetas(Shtetas qytetar){
             strcpy((shtetasptr+i)->mbiemer, qytetar.mbiemer);
             (shtetasptr+i)->ditelindja = qytetar.ditelindja;
             (shtetasptr+i)->id_familja = qytetar.id_familja;
-            /* e vendos ne vendin e duhur ne liste (Bubble sort) */
+            /* e vendos ne vendin e duhur ne liste duke perdorur Bubble sort */
             Shtetas temp;
             for(j = 0; j < counter-1; j++){
                 for(k = 0; k < counter-1-j; k++){
@@ -238,7 +238,7 @@ void marr_lejedalje(){
     scanf("%s", qytetar.idnr);
     int i;
     Orari o;
-    /* kontrollojme nese ekziston ky shtetas */
+    /* kontrolloj nese ekziston ky shtetas */
     for(i = 0; i < counter; i++){
         if(strcmp( (shtetasptr+i)->idnr, qytetar.idnr ) == 0){
             strcpy(qytetar.emer, (shtetasptr+i)->emer);
@@ -248,7 +248,7 @@ void marr_lejedalje(){
             break;
         }
     }
-    if(i == counter){// pra nuk u gjet nje shtetas me ate ID
+    if(i == counter){
         printf("Ky shtetas nuk ndodhet ne sistem!");
         return;
     }
@@ -321,16 +321,16 @@ int aprovimi_lejes(Shtetas qytetar, Data d, Orari o){
         }
     }
     // Nuk u gjet asnje pjestar i familjes me leje ne ate date
-        (persona_leje[qytetar.id_familja]+i-1)->data_lejes.dita = d.dita;
-        (persona_leje[qytetar.id_familja]+i-1)->data_lejes.muaji = d.muaji;
-        (persona_leje[qytetar.id_familja]+i-1)->data_lejes.viti = d.viti;
-        (persona_leje[qytetar.id_familja]+i-1)->time.ora = o.ora;
-        (persona_leje[qytetar.id_familja]+i-1)->time.minutat = o.minutat;
-        strcpy( (persona_leje[qytetar.id_familja]+i-1)->id, qytetar.idnr);
-        size_leje[qytetar.id_familja]++;
-        persona_leje[qytetar.id_familja] = (Leje*) realloc(persona_leje[qytetar.id_familja], size_leje[qytetar.id_familja]*sizeof(Leje));
-        printf("Leja u pranua!");
-        return 1;
+    (persona_leje[qytetar.id_familja]+i-1)->data_lejes.dita = d.dita;
+    (persona_leje[qytetar.id_familja]+i-1)->data_lejes.muaji = d.muaji;
+    (persona_leje[qytetar.id_familja]+i-1)->data_lejes.viti = d.viti;
+    (persona_leje[qytetar.id_familja]+i-1)->time.ora = o.ora;
+    (persona_leje[qytetar.id_familja]+i-1)->time.minutat = o.minutat;
+    strcpy( (persona_leje[qytetar.id_familja]+i-1)->id, qytetar.idnr);
+    size_leje[qytetar.id_familja]++;
+    persona_leje[qytetar.id_familja] = (Leje*) realloc(persona_leje[qytetar.id_familja], size_leje[qytetar.id_familja]*sizeof(Leje));
+    printf("Leja u pranua!");
+    return 1;
 }
 
 void ruaj_lejedaljet_file(Shtetas qytetar, Data d, Orari o){
@@ -380,7 +380,7 @@ void kontrollo_ne_file(char shtetas_id[], Data shtetas_data, Orari shtetas_ora){
 }
 
 void ruaj_ndryshimet(){
-    fseek(fptr, 37, SEEK_SET);// anashkaloj rreshtin e pare
+    fseek(fptr, 37, SEEK_SET);
     for(int i = 0; i < counter; i++){
         fprintf(fptr, "\n%s %s %s %d %d", (shtetasptr+i)->idnr, (shtetasptr+i)->emer, (shtetasptr+i)->mbiemer, (shtetasptr+i)->ditelindja, (shtetasptr+i)->id_familja);
     }
@@ -484,7 +484,7 @@ void printo_shtetas_sipas_lejedaljeve(){
         fscanf(fptr2, "%s %d %d %d %d %d %d\n", qytetar_id[counter_lejedalje], &id_familja, &d.dita, &d.muaji, &d.viti, &o.ora, &o.minutat);
         counter_lejedalje++;
     }
-    int banues[counter]={0};//mban numrin e hereve qe ka dale secili banor
+    int banues[counter] = {0}; //mban numrin e hereve qe ka dale secili banor
 
     for(i= 0; i< counter; i++){
         for(j= 0; j< counter_lejedalje; j++){
@@ -553,7 +553,7 @@ void printo_dhjete_me_pak(int banues[]){
         }
     }
     for(i = 0; i < counter; i++){
-        if(banues[index_banor[i]] != 0){// anashkalojme te gjithe banoret qe nuk kane dale asnjehere
+        if(banues[index_banor[i]] != 0){ //anashkaloj te gjithe banoret qe nuk kane dale asnjehere
             printf("\n10 shtetasit qe kane levizur me pak :\n");
             for(j = 0; j < 10; j++){
                 printf("%d. %s %s (%d here)\n", j+1, (shtetasptr+index_banor[i+j])->emer, (shtetasptr+index_banor[i+j])->mbiemer, banues[index_banor[i+j]]);
