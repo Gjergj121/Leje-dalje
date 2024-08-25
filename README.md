@@ -1,2 +1,1 @@
-# Leje-dalje
-/* Kjo eshte nje detyre kursi ne gjuhen C ne lidhje me dhenien e lejeve per dalje ne kohen e pandemise se COVID-19 */
+This is a project in C language. In this project I have created a system that is able to give permission to citizens to move outside during the COVID-19 pandemic, based on certain conditions. 
